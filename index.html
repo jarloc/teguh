@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Lembur Teguh v1.4</title>
+    <title>Sistem Lembur Teguh v1.5</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
         #login-box, #main-content { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -19,7 +19,7 @@
 <body>
 
 <div id="login-box">
-    <h2>Sistem Lembur Teguh v1.4</h2>
+    <h2>Sistem Lembur Teguh v1.5</h2>
     <input type="text" id="user" placeholder="Username">
     <input type="password" id="pass" placeholder="Password">
     <button class="btn-add" onclick="cekLogin()">Masuk</button>
@@ -27,7 +27,7 @@
 
 <div id="main-content" style="display:none;">
     <h3>Input Data Lembur</h3>
-    <input type="text" id="tgl" placeholder="Tanggal">
+    <input type="date" id="tgl">
     <input type="number" id="jam" placeholder="Jam (Angka)">
     <input type="text" id="ket" placeholder="Keterangan">
     <button class="btn-add" onclick="tambah()">Tambah Data</button>
@@ -43,7 +43,7 @@
         </thead>
         <tbody id="isi">
             <tr>
-                <td>16 Januari 2026</td>
+                <td>2026-01-16</td>
                 <td>3</td>
                 <td>Pagi</td>
                 <td>
@@ -102,14 +102,19 @@
     function edit(b) {
         const r = b.parentElement.parentElement;
         if(b.innerText === "Edit") {
-            r.cells[0].contentEditable = r.cells[1].contentEditable = r.cells[2].contentEditable = "true";
-            r.cells[0].style.background = "#fff9c4";
+            const tglLama = r.cells[0].innerText;
+            // Saat edit, kolom tanggal berubah jadi input kalender
+            r.cells[0].innerHTML = `<input type="date" value="${tglLama}" style="width:90%">`;
+            r.cells[1].contentEditable = r.cells[2].contentEditable = "true";
+            r.cells[1].style.background = r.cells[2].style.background = "#fff9c4";
             b.innerText = "Simpan";
             b.style.background = "#17a2b8";
             b.style.color = "white";
         } else {
-            r.cells[0].contentEditable = r.cells[1].contentEditable = r.cells[2].contentEditable = "false";
-            r.cells[0].style.background = "transparent";
+            const tglBaru = r.cells[0].querySelector('input').value;
+            r.cells[0].innerHTML = tglBaru;
+            r.cells[1].contentEditable = r.cells[2].contentEditable = "false";
+            r.cells[1].style.background = r.cells[2].style.background = "transparent";
             b.innerText = "Edit";
             b.style.background = "#ffc107";
             b.style.color = "black";
