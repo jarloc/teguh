@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Lembur Teguh v1.6</title>
+    <title>Sistem Lembur Teguh v1.7</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
         #login-box, #main-content { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -19,7 +19,7 @@
 <body>
 
 <div id="login-box">
-    <h2>Sistem Lembur Teguh v1.6</h2>
+    <h2>Sistem Lembur Teguh v1.7</h2>
     <input type="text" id="user" placeholder="Username">
     <input type="password" id="pass" placeholder="Password">
     <button class="btn-add" onclick="cekLogin()">Masuk</button>
@@ -28,7 +28,7 @@
 <div id="main-content" style="display:none;">
     <h3>Input Data Lembur</h3>
     <input type="date" id="tgl">
-    <input type="number" id="jam" placeholder="Jam (Angka)">
+    <input type="text" id="jam" placeholder="Jam (Contoh: 2,5)">
     <input type="text" id="ket" placeholder="Keterangan">
     <button class="btn-add" onclick="tambah()">Tambah Data</button>
 
@@ -80,10 +80,13 @@
     function tambah() {
         const tVal = document.getElementById('tgl').value;
         const tIndo = formatTglIndo(tVal);
-        const j = document.getElementById('jam').value;
+        let j = document.getElementById('jam').value;
         const k = document.getElementById('ket').value;
         
         if(!tVal || !j || !k) return alert("Isi semua kolom, Tuan.");
+
+        // Otomatis bersihkan input jam agar seragam
+        j = j.replace(',', '.');
 
         const baris = document.getElementById('isi').insertRow();
         baris.innerHTML = `
@@ -125,6 +128,10 @@
             cellTgl.setAttribute('data-raw', inputTgl);
             cellTgl.innerHTML = formatTglIndo(inputTgl);
             
+            // Saat simpan, pastikan koma diubah jadi titik untuk perhitungan
+            let jamBaru = r.cells[1].innerText.replace(',', '.');
+            r.cells[1].innerText = jamBaru;
+
             r.cells[1].contentEditable = r.cells[2].contentEditable = "false";
             r.cells[1].style.background = r.cells[2].style.background = "transparent";
             b.innerText = "Edit";
@@ -138,9 +145,12 @@
         let total = 0;
         const rows = document.getElementById('isi').rows;
         for(let i=0; i<rows.length; i++) {
-            total += parseFloat(rows[i].cells[1].innerText) || 0;
+            // Logika baru: ambil teks, ubah koma ke titik, lalu jadikan angka desimal
+            let nilai = rows[i].cells[1].innerText.replace(',', '.');
+            total += parseFloat(nilai) || 0;
         }
-        document.getElementById('total').innerText = total;
+        // Menampilkan hasil dengan maksimal 2 angka di belakang koma (jika ada desimal)
+        document.getElementById('total').innerText = Number(total.toFixed(2));
     }
 </script>
 </body>
