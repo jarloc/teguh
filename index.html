@@ -2,10 +2,10 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Lembur Teguh v1.8</title>
+    <title>Sistem Lembur Teguh v1.9</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
-        #login-box, #main-content { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        #login-box, #main-content { background: white; padding: 20px; border-radius: 8px; max-width: 1000px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ccc; padding: 12px; text-align: left; }
         th { background: #007bff; color: white; }
@@ -19,7 +19,7 @@
 <body>
 
 <div id="login-box">
-    <h2>Sistem Lembur Teguh v1.8</h2>
+    <h2>Sistem Lembur Teguh v1.9</h2>
     <input type="text" id="user" placeholder="Username">
     <input type="password" id="pass" placeholder="Password">
     <button class="btn-add" onclick="cekLogin()">Masuk</button>
@@ -28,7 +28,7 @@
 <div id="main-content" style="display:none;">
     <h3>Input Data Lembur</h3>
     <input type="date" id="tgl">
-    <input type="text" id="jam" placeholder="Jam (Contoh: 2,5)">
+    <input type="text" id="jam" placeholder="Jam (Contoh: 4)">
     <input type="text" id="ket" placeholder="Keterangan">
     <button class="btn-add" onclick="tambah()">Tambah Data</button>
 
@@ -37,23 +37,30 @@
             <tr>
                 <th>TANGGAL</th>
                 <th>JAM</th>
+                <th>PENDAPATAN (Rp)</th>
                 <th>KETERANGAN</th>
                 <th>AKSI</th>
             </tr>
         </thead>
-        <tbody id="isi">
-            </tbody>
+        <tbody id="isi"></tbody>
         <tfoot>
             <tr>
                 <td>TOTAL</td>
-                <td id="total">0</td>
-                <td colspan="2">JAM</td>
+                <td id="totalJam">0</td>
+                <td id="totalUang">0</td>
+                <td colspan="2">TOTAL RUPIAH</td>
             </tr>
         </tfoot>
     </table>
 </div>
 
 <script>
+    const TARIF_PER_JAM = 87500;
+
+    function formatRupiah(angka) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+    }
+
     function formatTglIndo(tglString) {
         if(!tglString) return "";
         const bulanIndo = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
@@ -68,34 +75,29 @@
         } else { alert("Akses Ditolak, Tuan."); }
     }
 
-    // Fungsi baru untuk mengurutkan tabel berdasarkan data-raw tanggal
     function urutkanTabel() {
         const tbody = document.getElementById('isi');
         const rows = Array.from(tbody.rows);
-
-        rows.sort((a, b) => {
-            const dateA = new Date(a.cells[0].getAttribute('data-raw'));
-            const dateB = new Date(b.cells[0].getAttribute('data-raw'));
-            return dateA - dateB; // Urutkan dari terlama ke terbaru
-        });
-
+        rows.sort((a, b) => new Date(a.cells[0].getAttribute('data-raw')) - new Date(b.cells[0].getAttribute('data-raw')));
         rows.forEach(row => tbody.appendChild(row));
     }
 
     function tambah() {
         const tVal = document.getElementById('tgl').value;
         const tIndo = formatTglIndo(tVal);
-        let j = document.getElementById('jam').value;
+        let j = document.getElementById('jam').value.replace(',', '.');
         const k = document.getElementById('ket').value;
         
         if(!tVal || !j || !k) return alert("Isi semua kolom, Tuan.");
 
-        j = j.replace(',', '.');
+        const jamNum = parseFloat(j) || 0;
+        const pendapatan = jamNum * TARIF_PER_JAM;
 
         const baris = document.getElementById('isi').insertRow();
         baris.innerHTML = `
             <td data-raw="${tVal}">${tIndo}</td>
-            <td>${j}</td>
+            <td>${jamNum}</td>
+            <td data-nilai="${pendapatan}">${formatRupiah(pendapatan)}</td>
             <td>${k}</td>
             <td>
                 <button class="btn-edit" onclick="edit(this)">Edit</button>
@@ -119,29 +121,29 @@
 
     function edit(b) {
         const r = b.parentElement.parentElement;
-        const cellTgl = r.cells[0];
-        
         if(b.innerText === "Edit") {
-            const tglMentah = cellTgl.getAttribute('data-raw') || "";
-            cellTgl.innerHTML = `<input type="date" value="${tglMentah}" style="width:90%">`;
-            r.cells[1].contentEditable = r.cells[2].contentEditable = "true";
-            r.cells[1].style.background = r.cells[2].style.background = "#fff9c4";
+            const tglMentah = r.cells[0].getAttribute('data-raw') || "";
+            r.cells[0].innerHTML = `<input type="date" value="${tglMentah}" style="width:90%">`;
+            r.cells[1].contentEditable = r.cells[3].contentEditable = "true";
+            r.cells[1].style.background = r.cells[3].style.background = "#fff9c4";
             b.innerText = "Simpan";
             b.style.background = "#17a2b8";
-            b.style.color = "white";
         } else {
-            const inputTgl = cellTgl.querySelector('input').value;
-            cellTgl.setAttribute('data-raw', inputTgl);
-            cellTgl.innerHTML = formatTglIndo(inputTgl);
+            const inputTgl = r.cells[0].querySelector('input').value;
+            r.cells[0].setAttribute('data-raw', inputTgl);
+            r.cells[0].innerHTML = formatTglIndo(inputTgl);
             
-            let jamBaru = r.cells[1].innerText.replace(',', '.');
+            let jamBaru = parseFloat(r.cells[1].innerText.replace(',', '.')) || 0;
             r.cells[1].innerText = jamBaru;
+            
+            const uangBaru = jamBaru * TARIF_PER_JAM;
+            r.cells[2].setAttribute('data-nilai', uangBaru);
+            r.cells[2].innerText = formatRupiah(uangBaru);
 
-            r.cells[1].contentEditable = r.cells[2].contentEditable = "false";
-            r.cells[1].style.background = r.cells[2].style.background = "transparent";
+            r.cells[1].contentEditable = r.cells[3].contentEditable = "false";
+            r.cells[1].style.background = r.cells[3].style.background = "transparent";
             b.innerText = "Edit";
             b.style.background = "#ffc107";
-            b.style.color = "black";
             
             urutkanTabel();
             hitung();
@@ -149,13 +151,15 @@
     }
 
     function hitung() {
-        let total = 0;
+        let totJam = 0;
+        let totUang = 0;
         const rows = document.getElementById('isi').rows;
         for(let i=0; i<rows.length; i++) {
-            let nilai = rows[i].cells[1].innerText.replace(',', '.');
-            total += parseFloat(nilai) || 0;
+            totJam += parseFloat(rows[i].cells[1].innerText) || 0;
+            totUang += parseFloat(rows[i].cells[2].getAttribute('data-nilai')) || 0;
         }
-        document.getElementById('total').innerText = Number(total.toFixed(2));
+        document.getElementById('totalJam').innerText = Number(totJam.toFixed(2));
+        document.getElementById('totalUang').innerText = formatRupiah(totUang);
     }
 </script>
 </body>
