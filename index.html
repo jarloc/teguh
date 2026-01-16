@@ -2,32 +2,33 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Lembur Tuan</title>
+    <title>Sistem Lembur Teguh v1.4</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
         #login-box, #main-content { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th, td { border: 1px solid #ccc; padding: 12px; text-align: left; }
         th { background: #007bff; color: white; }
-        .btn-add { background: #28a745; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; }
-        .btn-edit { background: #ffc107; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; margin-right: 5px; }
-        .btn-del { background: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
-        tfoot { font-weight: bold; background: #eee; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .btn-edit { background: #ffc107; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .btn-del { background: #dc3545; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        tfoot { font-weight: bold; background: #eee; font-size: 1.1em; }
+        input { padding: 8px; margin-right: 5px; border: 1px solid #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div id="login-box">
-    <h2>Lembur Teguh V.1.3</h2>
+    <h2>Akses Tuan</h2>
     <input type="text" id="user" placeholder="Username">
     <input type="password" id="pass" placeholder="Password">
     <button class="btn-add" onclick="cekLogin()">Masuk</button>
 </div>
 
 <div id="main-content" style="display:none;">
-    <h3>Laporan Lembur Tuan</h3>
+    <h3>Input Data Lembur</h3>
     <input type="text" id="tgl" placeholder="Tanggal">
-    <input type="number" id="jam" placeholder="Jam">
+    <input type="number" id="jam" placeholder="Jam (Angka)">
     <input type="text" id="ket" placeholder="Keterangan">
     <button class="btn-add" onclick="tambah()">Tambah Data</button>
 
@@ -40,11 +41,21 @@
                 <th>AKSI</th>
             </tr>
         </thead>
-        <tbody id="isi"></tbody>
+        <tbody id="isi">
+            <tr>
+                <td>16 Januari 2026</td>
+                <td>3</td>
+                <td>Pagi</td>
+                <td>
+                    <button class="btn-edit" onclick="edit(this)">Edit</button>
+                    <button class="btn-del" onclick="hapus(this)">Hapus</button>
+                </td>
+            </tr>
+        </tbody>
         <tfoot>
             <tr>
                 <td>TOTAL</td>
-                <td id="total">0</td>
+                <td id="total">3</td>
                 <td colspan="2">JAM</td>
             </tr>
         </tfoot>
@@ -56,14 +67,14 @@
         if(document.getElementById('user').value === "teguh" && document.getElementById('pass').value === "afia") {
             document.getElementById('login-box').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
-        } else { alert("Salah, Tuan."); }
+        } else { alert("Akses Ditolak, Tuan."); }
     }
 
     function tambah() {
         const t = document.getElementById('tgl').value;
         const j = document.getElementById('jam').value;
         const k = document.getElementById('ket').value;
-        if(!t || !j || !k) return;
+        if(!t || !j || !k) return alert("Isi semua kolom, Tuan.");
 
         const baris = document.getElementById('isi').insertRow();
         baris.innerHTML = `
@@ -75,11 +86,14 @@
                 <button class="btn-del" onclick="hapus(this)">Hapus</button>
             </td>
         `;
+        document.getElementById('tgl').value = '';
+        document.getElementById('jam').value = '';
+        document.getElementById('ket').value = '';
         hitung();
     }
 
     function hapus(b) {
-        if(confirm("Hapus, Tuan?")) {
+        if(confirm("Hapus data ini, Tuan?")) {
             b.parentElement.parentElement.remove();
             hitung();
         }
@@ -89,12 +103,16 @@
         const r = b.parentElement.parentElement;
         if(b.innerText === "Edit") {
             r.cells[0].contentEditable = r.cells[1].contentEditable = r.cells[2].contentEditable = "true";
+            r.cells[0].style.background = "#fff9c4";
             b.innerText = "Simpan";
             b.style.background = "#17a2b8";
+            b.style.color = "white";
         } else {
             r.cells[0].contentEditable = r.cells[1].contentEditable = r.cells[2].contentEditable = "false";
+            r.cells[0].style.background = "transparent";
             b.innerText = "Edit";
             b.style.background = "#ffc107";
+            b.style.color = "black";
             hitung();
         }
     }
@@ -110,4 +128,3 @@
 </script>
 </body>
 </html>
-
