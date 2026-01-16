@@ -2,42 +2,36 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Lembur Tuan - Versi 2</title>
+    <title>Sistem Lembur Tuan</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #ececec; }
-        #login-box, #main-content { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+        #login-box, #main-content { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
         th { background: #007bff; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .input-group { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; }
-        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
-        .btn-add { background: #28a745; color: white; }
-        .btn-edit { background: #ffc107; color: black; margin-right: 5px; }
-        .btn-delete { background: #dc3545; color: white; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; }
+        .btn-edit { background: #ffc107; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; margin-right: 5px; }
+        .btn-del { background: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
         tfoot { font-weight: bold; background: #eee; }
     </style>
 </head>
 <body>
 
 <div id="login-box">
-    <h2>Akses Masuk Tuan</h2>
-    <input type="text" id="user" placeholder="Username"><br><br>
-    <input type="password" id="pass" placeholder="Password"><br><br>
+    <h2>Login Tuan</h2>
+    <input type="text" id="user" placeholder="Username">
+    <input type="password" id="pass" placeholder="Password">
     <button class="btn-add" onclick="cekLogin()">Masuk</button>
 </div>
 
 <div id="main-content" style="display:none;">
-    <h2>Laporan Lembur Tuan</h2>
-    <div class="input-group">
-        <input type="text" id="tgl" placeholder="Tanggal (Contoh: 16 Jan)">
-        <input type="number" id="jam" placeholder="Jam (Angka saja)">
-        <input type="text" id="ket" placeholder="Keterangan">
-        <button class="btn-add" onclick="tambahData()">Tambah Data</button>
-    </div>
+    <h3>Laporan Lembur Tuan</h3>
+    <input type="text" id="tgl" placeholder="Tanggal">
+    <input type="number" id="jam" placeholder="Jam">
+    <input type="text" id="ket" placeholder="Keterangan">
+    <button class="btn-add" onclick="tambah()">Tambah Data</button>
 
-    <table id="tabelLembur">
+    <table>
         <thead>
             <tr>
                 <th>TANGGAL</th>
@@ -46,12 +40,11 @@
                 <th>AKSI</th>
             </tr>
         </thead>
-        <tbody id="isiTabel">
-            </tbody>
+        <tbody id="isi"></tbody>
         <tfoot>
             <tr>
                 <td>TOTAL</td>
-                <td id="totalJam">0</td>
+                <td id="total">0</td>
                 <td colspan="2">JAM</td>
             </tr>
         </tfoot>
@@ -60,81 +53,60 @@
 
 <script>
     function cekLogin() {
-        const u = document.getElementById('user').value;
-        const p = document.getElementById('pass').value;
-        if(u === "teguh" && p === "afia") {
+        if(document.getElementById('user').value === "teguh" && document.getElementById('pass').value === "afia") {
             document.getElementById('login-box').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
-        } else {
-            alert("Akses Ditolak, Tuan.");
-        }
+        } else { alert("Salah, Tuan."); }
     }
 
-    function hitungTotal() {
-        const tabel = document.getElementById('isiTabel');
-        let total = 0;
-        for (let i = 0; i < tabel.rows.length; i++) {
-            let nilai = parseFloat(tabel.rows[i].cells[1].innerText) || 0;
-            total += nilai;
-        }
-        document.getElementById('totalJam').innerText = total;
-    }
+    function tambah() {
+        const t = document.getElementById('tgl').value;
+        const j = document.getElementById('jam').value;
+        const k = document.getElementById('ket').value;
+        if(!t || !j || !k) return;
 
-    function tambahData() {
-        const tgl = document.getElementById('tgl').value;
-        const jam = document.getElementById('jam').value;
-        const ket = document.getElementById('ket').value;
-
-        if(!tgl || !jam || !ket) return alert("Mohon lengkapi data, Tuan.");
-
-        const tabel = document.getElementById('isiTabel');
-        const row = tabel.insertRow();
-        row.innerHTML = `
-            <td contenteditable="false">${tgl}</td>
-            <td contenteditable="false">${jam}</td>
-            <td contenteditable="false">${ket}</td>
+        const baris = document.getElementById('isi').insertRow();
+        baris.innerHTML = `
+            <td>${t}</td>
+            <td>${j}</td>
+            <td>${k}</td>
             <td>
-                <button class="btn-edit" onclick="editBaris(this)">Edit</button>
-                <button class="btn-delete" onclick="hapusBaris(this)">Hapus</button>
+                <button class="btn-edit" onclick="edit(this)">Edit</button>
+                <button class="btn-del" onclick="hapus(this)">Hapus</button>
             </td>
         `;
-        
-        bersihkanInput();
-        hitungTotal();
+        hitung();
     }
 
-    function hapusBaris(btn) {
-        if(confirm("Apakah Tuan yakin ingin menghapus baris ini?")) {
-            const row = btn.parentNode.parentNode;
-            row.parentNode.removeChild(row);
-            hitungTotal();
+    function hapus(b) {
+        if(confirm("Hapus, Tuan?")) {
+            b.parentElement.parentElement.remove();
+            hitung();
         }
     }
 
-    function editBaris(btn) {
-        const row = btn.parentNode.parentNode;
-        const isEditing = row.cells[0].contentEditable === "true";
-
-        if (!isEditing) {
-            for (let i = 0; i < 3; i++) row.cells[i].contentEditable = "true";
-            btn.innerText = "Simpan";
-            btn.style.background = "#17a2b8";
-            btn.style.color = "white";
+    function edit(b) {
+        const r = b.parentElement.parentElement;
+        if(b.innerText === "Edit") {
+            r.cells[0].contentEditable = r.cells[1].contentEditable = r.cells[2].contentEditable = "true";
+            b.innerText = "Simpan";
+            b.style.background = "#17a2b8";
         } else {
-            for (let i = 0; i < 3; i++) row.cells[i].contentEditable = "false";
-            btn.innerText = "Edit";
-            btn.style.background = "#ffc107";
-            btn.style.color = "black";
-            hitungTotal();
+            r.cells[0].contentEditable = r.cells[1].contentEditable = r.cells[2].contentEditable = "false";
+            b.innerText = "Edit";
+            b.style.background = "#ffc107";
+            hitung();
         }
     }
 
-    function bersihkanInput() {
-        document.getElementById('tgl').value = "";
-        document.getElementById('jam').value = "";
-        document.getElementById('ket').value = "";
+    function hitung() {
+        let total = 0;
+        const rows = document.getElementById('isi').rows;
+        for(let i=0; i<rows.length; i++) {
+            total += parseFloat(rows[i].cells[1].innerText) || 0;
+        }
+        document.getElementById('total').innerText = total;
     }
 </script>
-
 </body>
 </html>
