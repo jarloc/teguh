@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Lembur Teguh v2.0 - Cloud</title>
+    <title>Sistem Lembur Teguh v2.1 - Cloud</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
         #login-box, #main-content { background: white; padding: 20px; border-radius: 8px; max-width: 1000px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -19,7 +19,7 @@
 <body>
 
 <div id="login-box">
-    <h2>Sistem Lembur Teguh v2.0</h2>
+    <h2>Sistem Lembur Teguh v2.1</h2>
     <input type="text" id="user" placeholder="Username">
     <input type="password" id="pass" placeholder="Password">
     <button class="btn-add" id="btnLogin">Masuk</button>
@@ -55,7 +55,6 @@
 </div>
 
 <script type="module">
-    // Import Firebase dari kode yang Tuan berikan
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
@@ -75,7 +74,6 @@
     const dbRef = ref(db, 'lembur');
     const TARIF_PER_JAM = 87500;
 
-    // Fungsi Internal
     const formatRupiah = (a) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(a);
     const formatTglIndo = (s) => {
         if(!s) return "";
@@ -84,16 +82,17 @@
         return `${d.getDate()} ${bIndo[d.getMonth()]} ${d.getFullYear()}`;
     };
 
-    // Tombol Login
+    // LOGIKA LOGIN BARU: BEBAS KAPITAL
     document.getElementById('btnLogin').onclick = () => {
-        if(document.getElementById('user').value === "teguh" && document.getElementById('pass').value === "afia") {
+        const u = document.getElementById('user').value.toLowerCase(); // Menjadi huruf kecil
+        const p = document.getElementById('pass').value.toLowerCase(); // Menjadi huruf kecil
+        if(u === "teguh" && p === "afia") {
             document.getElementById('login-box').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
             muatData();
         } else { alert("Akses Ditolak, Tuan."); }
     };
 
-    // Muat Data
     function muatData() {
         onValue(dbRef, (snapshot) => {
             const tbody = document.getElementById('isi');
@@ -126,13 +125,11 @@
         });
     }
 
-    // Tambah Data
     document.getElementById('btnTambah').onclick = () => {
         const tVal = document.getElementById('tgl').value;
         let j = document.getElementById('jam').value.replace(',', '.');
         const k = document.getElementById('ket').value;
         if(!tVal || !j || !k) return alert("Isi semua kolom, Tuan.");
-
         push(dbRef, { tgl: tVal, jam: parseFloat(j), ket: k });
         document.getElementById('tgl').value = '';
         document.getElementById('jam').value = '';
