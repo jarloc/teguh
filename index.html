@@ -31,13 +31,13 @@
 <div id="main-content" style="display:none;">
     <h3>Input Data Lembur</h3>
     <input type="date" id="tgl">
-    <input type="text" id="jam" placeholder="Jam (Contoh: 2)">
+    <input type="text" id="jam" placeholder="Jam (Contoh: 20.5)">
     <input type="text" id="ket" placeholder="Keterangan">
     <button class="btn-add" id="btnTambah">Tambah Data</button>
 
     <div class="nav-bulan">
         <button class="btn-nav" id="prevBulan">◀ Bulan Lalu</button>
-        <div id="displayBulan">JANUARI 2026</div>
+        <div id="displayBulan">BULAN</div>
         <button class="btn-nav" id="nextBulan">Bulan Depan ▶</button>
     </div>
 
@@ -57,7 +57,7 @@
                 <td>TOTAL BULAN INI</td>
                 <td id="totalJam">0</td>
                 <td id="totalUang">0</td>
-                <td colspan="2">👈 ESTIMASI PENDAPATAN LEMBUR</td>
+                <td colspan="2">SALAM HORMAT, TUAN</td>
             </tr>
         </tfoot>
     </table>
@@ -81,12 +81,14 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const dbRef = ref(db, 'lembur');
-    const TARIF_PER_JAM = 35000;
+
+    // TARIF PRESISI TANPA PEMBULATAN SESUAI HITUNGAN TUAN
+    const TARIF_PER_JAM = 75134.829268;
 
     let tglSekarang = new Date();
     const bulanNama = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
 
-    const formatRupiah = (a) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(a);
+    const formatRupiah = (a) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.floor(a));
     const formatTglIndo = (s) => {
         if(!s) return "";
         const d = new Date(s);
@@ -120,8 +122,6 @@
                 Object.keys(data).forEach(id => {
                     const item = data[id];
                     const itemDate = new Date(item.tgl);
-                    
-                    // Filter: Hanya tampilkan jika bulan & tahun cocok
                     if(itemDate.getMonth() === tglSekarang.getMonth() && itemDate.getFullYear() === tglSekarang.getFullYear()) {
                         const jamFix = parseFloat(item.jam) || 0;
                         const pendapatan = jamFix * TARIF_PER_JAM;
@@ -192,4 +192,3 @@
 </script>
 </body>
 </html>
-
