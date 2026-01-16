@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Lembur Teguh v1.5</title>
+    <title>Sistem Lembur Teguh v1.6</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
         #login-box, #main-content { background: white; padding: 20px; border-radius: 8px; max-width: 900px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -19,7 +19,7 @@
 <body>
 
 <div id="login-box">
-    <h2>Sistem Lembur Teguh v1.5</h2>
+    <h2>Sistem Lembur Teguh v1.6</h2>
     <input type="text" id="user" placeholder="Username">
     <input type="password" id="pass" placeholder="Password">
     <button class="btn-add" onclick="cekLogin()">Masuk</button>
@@ -43,7 +43,7 @@
         </thead>
         <tbody id="isi">
             <tr>
-                <td>2026-01-16</td>
+                <td>16 JANUARI 2026</td>
                 <td>3</td>
                 <td>Pagi</td>
                 <td>
@@ -63,6 +63,13 @@
 </div>
 
 <script>
+    function formatTglIndo(tglString) {
+        if(!tglString) return "";
+        const bulanIndo = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+        const d = new Date(tglString);
+        return `${d.getDate()} ${bulanIndo[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
     function cekLogin() {
         if(document.getElementById('user').value === "teguh" && document.getElementById('pass').value === "afia") {
             document.getElementById('login-box').style.display = 'none';
@@ -71,14 +78,16 @@
     }
 
     function tambah() {
-        const t = document.getElementById('tgl').value;
+        const tVal = document.getElementById('tgl').value;
+        const tIndo = formatTglIndo(tVal);
         const j = document.getElementById('jam').value;
         const k = document.getElementById('ket').value;
-        if(!t || !j || !k) return alert("Isi semua kolom, Tuan.");
+        
+        if(!tVal || !j || !k) return alert("Isi semua kolom, Tuan.");
 
         const baris = document.getElementById('isi').insertRow();
         baris.innerHTML = `
-            <td>${t}</td>
+            <td data-raw="${tVal}">${tIndo}</td>
             <td>${j}</td>
             <td>${k}</td>
             <td>
@@ -101,18 +110,21 @@
 
     function edit(b) {
         const r = b.parentElement.parentElement;
+        const cellTgl = r.cells[0];
+        
         if(b.innerText === "Edit") {
-            const tglLama = r.cells[0].innerText;
-            // Saat edit, kolom tanggal berubah jadi input kalender
-            r.cells[0].innerHTML = `<input type="date" value="${tglLama}" style="width:90%">`;
+            const tglMentah = cellTgl.getAttribute('data-raw') || "";
+            cellTgl.innerHTML = `<input type="date" value="${tglMentah}" style="width:90%">`;
             r.cells[1].contentEditable = r.cells[2].contentEditable = "true";
             r.cells[1].style.background = r.cells[2].style.background = "#fff9c4";
             b.innerText = "Simpan";
             b.style.background = "#17a2b8";
             b.style.color = "white";
         } else {
-            const tglBaru = r.cells[0].querySelector('input').value;
-            r.cells[0].innerHTML = tglBaru;
+            const inputTgl = cellTgl.querySelector('input').value;
+            cellTgl.setAttribute('data-raw', inputTgl);
+            cellTgl.innerHTML = formatTglIndo(inputTgl);
+            
             r.cells[1].contentEditable = r.cells[2].contentEditable = "false";
             r.cells[1].style.background = r.cells[2].style.background = "transparent";
             b.innerText = "Edit";
